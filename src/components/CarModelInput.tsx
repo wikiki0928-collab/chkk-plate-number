@@ -7,26 +7,25 @@ interface CarModelInputProps {
 
 export default function CarModelInput({ value, onChange }: CarModelInputProps) {
   return (
-    <div className="w-full space-y-3">
-      <label className="flex items-center text-xs font-black uppercase tracking-[0.2em] text-gray-500 ml-1">
-        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mr-2"></span>
-        输入车驾型号
+    <div className="w-full space-y-2">
+      <label className="block text-sm font-semibold text-slate-700 ml-1">
+        车驾型号 <span className="text-red-500">*</span>
       </label>
       <div className="relative group">
         <input
           type="text"
-          className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-white/20 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/30 transition-all font-bold tracking-wide"
+          className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500/50 transition-all font-bold"
           placeholder="例如: HONDA CITY / PROTON X70"
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />
-        <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none opacity-20 group-focus-within:opacity-100 transition-opacity">
-          <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none opacity-20 group-focus-within:opacity-100 transition-opacity">
+          <svg className="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
           </svg>
         </div>
       </div>
-      <p className="text-[10px] text-gray-600 font-bold uppercase tracking-tight ml-1">
+      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight ml-1">
         请填写品牌和型号。
       </p>
     </div>
