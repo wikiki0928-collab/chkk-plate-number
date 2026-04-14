@@ -130,6 +130,15 @@ export default function Home() {
   };
 
   // Admin Actions: Records
+  const startEditing = (reg: any) => {
+    setEditingId(reg.id);
+    setEditForm({
+      teacherName: reg.teacherName,
+      plateNumber: reg.plateNumber,
+      carModel: reg.carModel
+    });
+  };
+
   const handleDeleteRecord = async (id: string, teacher: string) => {
     if (window.confirm(`确定要删除 ${teacher} 的记录吗？`)) {
       try {
