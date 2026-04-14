@@ -31,14 +31,17 @@ export default function TeacherSelector({ onSelect, selectedTeacher }: TeacherSe
   }, []);
 
   return (
-    <div className="relative w-full" ref={containerRef}>
-      <label className="block text-sm font-medium text-gray-200 mb-2">
+    <div className="relative w-full space-y-2" ref={containerRef}>
+      <label className="flex items-center text-sm font-medium text-gray-300 ml-1">
+        <svg className="w-4 h-4 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
         选择老师姓名
       </label>
       <div className="relative">
         <input
           type="text"
-          className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+          className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all shadow-inner"
           placeholder="搜索或输入姓名..."
           value={selectedTeacher || query}
           onChange={(e) => {
@@ -49,11 +52,11 @@ export default function TeacherSelector({ onSelect, selectedTeacher }: TeacherSe
           onFocus={() => setIsOpen(true)}
         />
         {isOpen && filteredTeachers.length > 0 && (
-          <div className="absolute z-10 w-full mt-2 bg-gray-900/95 border border-white/20 rounded-xl shadow-2xl overflow-hidden backdrop-blur-xl animate-in fade-in zoom-in duration-200">
+          <div className="absolute z-20 w-full mt-2 bg-gray-900/90 border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-2xl animate-in fade-in zoom-in duration-200">
             {filteredTeachers.map((teacher) => (
               <button
                 key={teacher}
-                className="w-full text-left px-4 py-3 text-gray-200 hover:bg-blue-600 hover:text-white transition-colors border-b border-white/5 last:border-0"
+                className="w-full text-left px-5 py-4 text-gray-200 hover:bg-purple-600 hover:text-white transition-all border-b border-white/5 last:border-0 font-medium"
                 onClick={() => {
                   onSelect(teacher);
                   setQuery("");
@@ -67,8 +70,8 @@ export default function TeacherSelector({ onSelect, selectedTeacher }: TeacherSe
         )}
       </div>
       {selectedTeacher && (
-        <p className="mt-2 text-sm text-blue-400 font-medium">
-          已选择: {selectedTeacher}
+        <p className="text-[10px] text-purple-400 font-bold uppercase tracking-widest ml-1 animate-pulse">
+          ✓ 已选择: {selectedTeacher}
         </p>
       )}
     </div>

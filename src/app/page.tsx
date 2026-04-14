@@ -3,19 +3,21 @@
 import { useState } from "react";
 import TeacherSelector from "@/components/TeacherSelector";
 import PlateInput from "@/components/PlateInput";
+import CarModelInput from "@/components/CarModelInput";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function Home() {
   const [selectedTeacher, setSelectedTeacher] = useState("");
   const [plateNumber, setPlateNumber] = useState("");
+  const [carModel, setCarModel] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedTeacher || !plateNumber) {
-      setMessage({ type: "error", text: "请确保已选老师并输入车牌号码。" });
+    if (!selectedTeacher || !plateNumber || !carModel) {
+      setMessage({ type: "error", text: "请确保已选择老师、输入车驾型号并输入车牌号码。" });
       return;
     }
 
@@ -32,12 +34,14 @@ export default function Home() {
       await addDoc(collection(db, "plate_numbers"), {
         teacherName: selectedTeacher,
         plateNumber: plateNumber,
+        carModel: carModel,
         createdAt: serverTimestamp(),
       });
 
       setMessage({ type: "success", text: "提交成功！感谢您的配合。" });
       setSelectedTeacher("");
       setPlateNumber("");
+      setCarModel("");
     } catch (error: any) {
       console.error("Error submitting:", error);
       setMessage({ type: "error", text: error.message || "提交失败，请稍后再试。" });
@@ -72,6 +76,11 @@ export default function Home() {
           <PlateInput
             value={plateNumber}
             onChange={setPlateNumber}
+          />
+
+          <CarModelInput
+            value={carModel}
+            onChange={setCarModel}
           />
 
           {message && (
