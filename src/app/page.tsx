@@ -26,11 +26,6 @@ export default function Home() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
 
-export default function Home() {
-  const [viewMode, setViewMode] = useState<ViewMode>("survey");
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-  const [password, setPassword] = useState("");
-
   // Survey States
   const [selectedTeacher, setSelectedTeacher] = useState("");
   const [hasVehicle, setHasVehicle] = useState(true);
