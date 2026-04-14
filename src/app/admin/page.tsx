@@ -68,15 +68,15 @@ export default function AdminPage() {
   const handleDelete = async (id: string, teacher: string) => {
     if (window.confirm(`确定要删除 ${teacher} 的记录吗？`)) {
       try {
-      await deleteDoc(doc(db, "plate_numbers", id));
-      setRegistrations(prev => prev.filter(reg => reg.id !== id));
-      setStatusMessage({ type: "success", text: "记录已成功删除。" });
-    } catch (error: any) {
-      console.error("Delete Error:", error);
-      setStatusMessage({ type: "error", text: `删除失败: ${error.message}` });
+        await deleteDoc(doc(db, "plate_numbers", id));
+        setRegistrations(prev => prev.filter(reg => reg.id !== id));
+        setStatusMessage({ type: "success", text: "记录已成功删除。" });
+      } catch (error: any) {
+        console.error("Delete Error:", error);
+        setStatusMessage({ type: "error", text: `删除失败: ${error.message}` });
+      }
     }
-  }
-};
+  };
 
   const startEditing = (reg: Registration) => {
     setEditingId(reg.id);
@@ -136,30 +136,27 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <main className="min-h-screen bg-mesh flex items-center justify-center px-4">
-        <div className="glass max-w-md w-full p-10 rounded-[40px] space-y-8 animate-in fade-in zoom-in duration-500">
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl shadow-xl">
-              🔒
-            </div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">ADMIN ACCESS</h1>
-            <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">请输入管理员密码以继续</p>
+      <main className="min-h-screen flex items-center justify-center p-4">
+        <div className="card-formal max-w-sm w-full p-10 space-y-6">
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl font-bold text-slate-900 uppercase tracking-tighter">管理员登录</h1>
+            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Administrative Access</p>
           </div>
           
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter Password"
-              className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 focus:border-blue-500 focus:ring-0 outline-none transition-all font-bold text-center"
+              placeholder="请输入密码"
+              className="input-formal text-center"
               autoFocus
             />
             <button
               type="submit"
-              className="w-full bg-slate-900 text-white rounded-2xl py-4 font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/10"
+              className="w-full btn-primary"
             >
-              UNLOCK DASHBOARD
+              验证并进入
             </button>
           </form>
         </div>
@@ -168,195 +165,154 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-mesh py-12 px-4 md:py-20">
-      <div className="max-w-6xl mx-auto space-y-10">
+    <main className="min-h-screen py-12 px-4 bg-slate-50/50">
+      <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-black text-slate-900 tracking-tighter">
-              ADMIN <span className="text-blue-600">DASHBOARD</span>
-            </h1>
-            <p className="text-slate-500 font-bold text-xs uppercase tracking-widest flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Live Data Management
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">管理后台</h1>
+            <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+              Vehicle Registration Management
             </p>
           </div>
           
-          <div className="flex items-center gap-4">
-            <button
-              onClick={exportToExcel}
-              className="glass px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-700 hover:bg-white transition-all flex items-center gap-2 border-slate-200"
-            >
-              <span>📊 EXPORT EXCEL</span>
+          <div className="flex items-center gap-3">
+            <button onClick={exportToExcel} className="btn-secondary text-xs flex items-center gap-2">
+              <span>📊 导出资料 (EXCEL)</span>
             </button>
-            <button
-              onClick={() => setIsAuthenticated(false)}
-              className="glass px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-rose-600 hover:bg-rose-50 transition-all border-rose-100"
-            >
-              LOGOUT
+            <button onClick={() => setIsAuthenticated(false)} className="px-4 py-2 text-xs font-bold text-rose-600 hover:text-rose-700">
+              退出登录
             </button>
           </div>
         </div>
 
-        {/* Stats & Search */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="glass p-6 rounded-[32px] flex items-center gap-6">
-            <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 text-xl font-black">
-              {registrations.length}
-            </div>
-            <div>
-              <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest">Total Registered</p>
-              <p className="text-xl font-black text-slate-800">Vehicle Records</p>
-            </div>
-          </div>
-
-          <div className="md:col-span-2 glass p-4 rounded-[32px] flex items-center px-6">
-            <span className="text-slate-400 mr-4">🔍</span>
+        {/* Search & Meta */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
             <input
               type="text"
-              placeholder="Search by teacher name, plate, or model..."
+              placeholder="搜索教师、车牌或型号..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-transparent border-none outline-none font-bold text-slate-700 placeholder:text-slate-300"
+              className="input-formal"
             />
+          </div>
+          <div className="px-6 py-3 bg-white border border-slate-200 rounded-lg flex items-center gap-4">
+            <span className="text-xs font-bold text-slate-400 uppercase">当前记录</span>
+            <span className="text-sm font-black text-slate-800">{registrations.length}</span>
           </div>
         </div>
 
         {/* Status Message */}
         {statusMessage && (
-          <div className={`mx-4 p-4 rounded-2xl font-bold text-sm animate-in slide-in-from-top-4 duration-300 ${
-            statusMessage.type === "success" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-rose-50 text-rose-700 border border-rose-100"
+          <div className={`p-4 rounded border text-sm font-bold ${
+            statusMessage.type === "success" ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-rose-50 text-rose-700 border-rose-100"
           }`}>
             {statusMessage.text}
-            <button className="float-right hover:opacity-50" onClick={() => setStatusMessage(null)}>✕</button>
+            <button className="float-right" onClick={() => setStatusMessage(null)}>✕</button>
           </div>
         )}
 
-        {/* Data Table */}
-        <div className="glass rounded-[40px] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/50 border-b border-white">
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Teacher Name</th>
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Plate Number</th>
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Car Model</th>
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Created At</th>
-                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-right">Actions</th>
+        {/* Table */}
+        <div className="table-container shadow-sm">
+          <table className="formal">
+            <thead>
+              <tr>
+                <th>教师姓名</th>
+                <th>车牌号码</th>
+                <th>车辆型号</th>
+                <th>提交时间</th>
+                <th className="text-right">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-20 text-slate-400 font-bold uppercase tracking-widest animate-pulse">
+                    正在加载数据...
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-white/40">
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={5} className="px-8 py-20 text-center text-slate-400 font-bold uppercase tracking-widest animate-pulse">
-                      Synchronizing Records...
+              ) : filteredRegistrations.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-20 text-slate-400 font-bold uppercase tracking-widest">
+                    暂无相关记录
+                  </td>
+                </tr>
+              ) : (
+                filteredRegistrations.map((reg) => (
+                  <tr key={reg.id}>
+                    <td>
+                      <span className="font-bold text-slate-700">{reg.teacherName}</span>
+                    </td>
+                    <td>
+                      <span className="px-2 py-1 bg-slate-100 text-slate-800 rounded font-mono text-xs font-bold border border-slate-200">
+                        {reg.plateNumber}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="text-xs text-slate-600 font-medium">{reg.carModel}</span>
+                    </td>
+                    <td>
+                      <span className="text-[11px] text-slate-400 font-medium">
+                        {reg.createdAt?.toDate ? reg.createdAt.toDate().toLocaleString() : "刚刚"}
+                      </span>
+                    </td>
+                    <td className="text-right space-x-4">
+                      <button onClick={() => startEditing(reg)} className="text-blue-600 hover:text-blue-800 text-xs font-bold">编辑</button>
+                      <button onClick={() => handleDelete(reg.id, reg.teacherName)} className="text-rose-600 hover:text-rose-800 text-xs font-bold">删除</button>
                     </td>
                   </tr>
-                ) : filteredRegistrations.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-8 py-20 text-center text-slate-400 font-bold uppercase tracking-widest">
-                      No matching records found.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredRegistrations.map((reg) => (
-                    <tr key={reg.id} className="hover:bg-white/40 transition-colors group">
-                      <td className="px-8 py-6">
-                        <span className="text-sm font-black text-slate-800">{reg.teacherName}</span>
-                      </td>
-                      <td className="px-8 py-6">
-                        <span className="inline-block px-3 py-1 bg-slate-900 text-white rounded-lg text-xs font-mono tracking-wider font-bold">
-                          {reg.plateNumber}
-                        </span>
-                      </td>
-                      <td className="px-8 py-6">
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-tighter">{reg.carModel}</span>
-                      </td>
-                      <td className="px-8 py-6">
-                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-tight">
-                          {reg.createdAt?.toDate ? reg.createdAt.toDate().toLocaleString() : "Just now"}
-                        </span>
-                      </td>
-                      <td className="px-8 py-6 text-right space-x-2">
-                        <button
-                          onClick={() => startEditing(reg)}
-                          className="p-2 hover:bg-blue-50 rounded-xl text-blue-500 transition-all opacity-0 group-hover:opacity-100"
-                          title="Edit"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          onClick={() => handleDelete(reg.id, reg.teacherName)}
-                          className="p-2 hover:bg-rose-50 rounded-xl text-rose-500 transition-all opacity-0 group-hover:opacity-100"
-                          title="Delete"
-                        >
-                          🗑️
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
       {/* Edit Modal */}
       {editingId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="glass max-w-lg w-full p-8 rounded-[40px] space-y-8 animate-in zoom-in-95 duration-300">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight">EDIT RECORD</h2>
-              <button onClick={() => setEditingId(null)} className="text-slate-400 hover:text-slate-600">✕</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="card-formal max-w-lg w-full p-8 space-y-6">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+              <h2 className="text-lg font-bold text-slate-900">修改登记资料</h2>
+              <button onClick={() => setEditingId(null)} className="text-slate-400">✕</button>
             </div>
 
-            <form onSubmit={handleUpdate} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Teacher Name</label>
+            <form onSubmit={handleUpdate} className="space-y-5">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase ml-1">教师姓名</label>
                 <select
                   value={editForm.teacherName}
                   onChange={(e) => setEditForm({ ...editForm, teacherName: e.target.value })}
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 focus:border-blue-500 outline-none font-bold"
+                  className="input-formal"
                 >
                   {TEACHERS.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Plate Number</label>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase ml-1">车牌号码</label>
                 <input
                   type="text"
                   value={editForm.plateNumber}
                   onChange={(e) => setEditForm({ ...editForm, plateNumber: e.target.value.toUpperCase() })}
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 focus:border-blue-500 outline-none font-bold font-mono"
+                  className="input-formal font-mono"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Car Model</label>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase ml-1">车辆型号</label>
                 <input
                   type="text"
                   value={editForm.carModel}
                   onChange={(e) => setEditForm({ ...editForm, carModel: e.target.value })}
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 focus:border-blue-500 outline-none font-bold"
+                  className="input-formal"
                 />
               </div>
 
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setEditingId(null)}
-                  className="flex-1 bg-slate-100 text-slate-600 rounded-2xl py-4 font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-colors"
-                >
-                  CANCEL
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-blue-600 text-white rounded-2xl py-4 font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
-                >
-                  SAVE CHANGES
-                </button>
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setEditingId(null)} className="flex-1 btn-secondary text-sm">取消</button>
+                <button type="submit" className="flex-1 btn-primary text-sm">提交修改</button>
               </div>
             </form>
           </div>

@@ -1,94 +1,132 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-50: #f0f9ff;
-  --color-brand-100: #e0f2fe;
-  --color-brand-200: #bae6fd;
-  --color-brand-300: #7dd3fc;
-  --color-brand-400: #38bdf8;
-  --color-brand-500: #0ea5e9;
-  --color-brand-600: #0284c7;
-  --color-brand-700: #0369a1;
-  --color-brand-800: #075985;
-  --color-brand-900: #0c4a6e;
-  --color-brand-950: #082f49;
-
-  --animate-blob: blob 15s infinite;
-  
-  @keyframes blob {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(60px, -40px) scale(1.2); }
-    66% { transform: translate(-30px, 20px) scale(0.8); }
-    100% { transform: translate(0px, 0px) scale(1); }
-  }
+  --color-brand-primary: #1e293b;
+  --color-brand-accent: #2563eb;
+  --color-brand-bg: #f8fafc;
+  --color-brand-border: #e2e8f0;
 }
 
 :root {
-  --foreground: #1e293b;
-  --background: #ffffff;
+  --foreground: #0f172a;
+  --background: #f8fafc;
+  --accent: #2563eb;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-}
-
-/* Enhanced Premium Glassmorphism */
-.glass {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 20px 40px -10px rgba(0, 0, 0, 0.08);
-}
-
-.glass-pill {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(14, 165, 233, 0.15);
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.05);
-}
-
-.bg-mesh {
-  background-color: #f8fafc;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(217, 70, 239, 0.1) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(52, 211, 153, 0.1) 0px, transparent 50%);
+    radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
 }
 
-.text-gradient-primary {
-  background: linear-gradient(135deg, #0f172a 0%, #2563eb 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Formal Corporate Styles */
+.card-formal {
+  background: #ffffff;
+  border: 1px solid var(--color-brand-border);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
 }
 
-/* Custom scrollbar for better visibility */
+.input-formal {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+}
+
+.input-formal:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.btn-primary {
+  background-color: var(--accent);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-secondary {
+  background-color: white;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Formal Table Styles */
+.table-container {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+}
+
+table.formal {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table.formal th {
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1rem 1.5rem;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+table.formal td {
+  padding: 1rem 1.5rem;
+  font-size: 0.875rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+table.formal tr:last-child td {
+  border-bottom: none;
+}
+
+table.formal tr:hover td {
+  background: #f8fafc;
+}
+
+/* Custom Scrollbar for Formal UI */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.02);
-  border-radius: 10px;
+  background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
-  border: 2px solid #f8fafc;
+  background: #e2e8f0;
+  border-radius: 3px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #cbd5e1;
 }
 
-/* Helper animations */
-.animation-delay-2000 {
-  animation-delay: 2s;
-}
-.animation-delay-4000 {
-  animation-delay: 4s;
-}
