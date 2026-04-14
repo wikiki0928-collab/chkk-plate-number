@@ -396,6 +396,7 @@ export default function Home() {
                       <th className="bg-slate-50">教师姓名</th>
                       <th className="bg-slate-50">车牌号码</th>
                       <th className="bg-slate-50">车辆型号</th>
+                      {isAdminAuthenticated && <th className="bg-slate-50 text-right">管理操作</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -410,6 +411,16 @@ export default function Home() {
                           )}
                         </td>
                         <td><span className="text-xs text-slate-600 font-medium">{reg.carModel}</span></td>
+                        {isAdminAuthenticated && (
+                          <td className="text-right">
+                            <button 
+                              onClick={() => handleDeleteRecord(reg.id, reg.teacherName)}
+                              className="text-rose-600 font-bold text-xs hover:underline"
+                            >
+                              删除/重填
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>
