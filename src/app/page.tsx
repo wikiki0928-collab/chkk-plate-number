@@ -15,27 +15,36 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [registrations, setRegistrations] = useState<any[]>([]);
+  const [staffList, setStaffList] = useState<string[]>([]);
   const [isLoadingList, setIsLoadingList] = useState(true);
   const [showPublicList, setShowPublicList] = useState(false);
 
-  const fetchSubmissions = async () => {
+  const fetchData = async () => {
+    setIsLoadingList(true);
     try {
-      const q = query(collection(db, "plate_numbers"), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(q);
-      const docs = querySnapshot.docs.map(doc => ({
+      // Fetch registrations
+      const qReg = query(collection(db, "plate_numbers"), orderBy("createdAt", "desc"));
+      const snapReg = await getDocs(qReg);
+      const docsReg = snapReg.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      setRegistrations(docs);
+      setRegistrations(docsReg);
+
+      // Fetch staff list
+      const qStaff = query(collection(db, "staff"), orderBy("name", "asc"));
+      const snapStaff = await getDocs(qStaff);
+      const namesStaff = snapStaff.docs.map(doc => doc.data().name);
+      setStaffList(namesStaff);
     } catch (error) {
-      console.error("Error fetching submissions:", error);
+      console.error("Error fetching data:", error);
     } finally {
       setIsLoadingList(false);
     }
   };
 
   useEffect(() => {
-    fetchSubmissions();
+    fetchData();
   }, []);
 
   const submittedNames = useMemo(() => {
@@ -43,8 +52,8 @@ export default function Home() {
   }, [registrations]);
 
   const unsubmittedTeachers = useMemo(() => {
-    return TEACHERS.filter(name => !submittedNames.includes(name));
-  }, [submittedNames]);
+    return staffList.filter(name => !submittedNames.includes(name));
+  }, [staffList, submittedNames]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
