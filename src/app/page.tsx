@@ -26,10 +26,15 @@ export default function Home() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
 
+export default function Home() {
+  const [viewMode, setViewMode] = useState<ViewMode>("survey");
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+
   // Survey States
   const [selectedTeacher, setSelectedTeacher] = useState("");
-  const [plateNumber, setPlateNumber] = useState("");
-  const [carModel, setCarModel] = useState("");
+  const [hasVehicle, setHasVehicle] = useState(true);
+  const [vehicles, setVehicles] = useState([{ plate: "", model: "" }]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -50,23 +55,13 @@ export default function Home() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // Fetch registrations
       const qReg = query(collection(db, "plate_numbers"), orderBy("createdAt", "desc"));
       const snapReg = await getDocs(qReg);
-      const docsReg = snapReg.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setRegistrations(docsReg);
+      setRegistrations(snapReg.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 
-      // Fetch staff list
       const qStaff = query(collection(db, "staff"), orderBy("name", "asc"));
       const snapStaff = await getDocs(qStaff);
-      const docsStaff = snapStaff.docs.map(doc => ({
-        id: doc.id,
-        name: doc.data().name
-      }));
-      setStaffList(docsStaff);
+      setStaffList(snapStaff.docs.map(doc => ({ id: doc.id, name: doc.data().name })));
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -87,6 +82,21 @@ export default function Home() {
     return namesStaff.filter(name => !submittedNames.includes(name));
   }, [staffList, submittedNames]);
 
+  // Dynamic Row Logic
+  const handleAddVehicleRow = () => {
+    setVehicles([...vehicles, { plate: "", model: "" }]);
+  };
+
+  const handleRemoveVehicleRow = (index: number) => {
+    setVehicles(vehicles.filter((_, i) => i !== index));
+  };
+
+  const updateVehicle = (index: number, field: "plate" | "model", value: string) => {
+    const newVehicles = [...vehicles];
+    newVehicles[index][field] = value;
+    setVehicles(newVehicles);
+  };
+
   // Auth Handler
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,35 +111,67 @@ export default function Home() {
   // Survey Submission
   const handleSubmitSurvey = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedTeacher || !plateNumber || !carModel) {
-      setMessage({ type: "error", text: "请填写并检查所有必填项。" });
+    
+    if (!selectedTeacher) {
+      setMessage({ type: "error", text: "请先选择您的姓名。" });
       return;
+    }
+
+    if (hasVehicle) {
+      const isValid = vehicles.every(v => v.plate.trim() && v.model.trim());
+      if (!isValid || vehicles.length === 0) {
+        setMessage({ type: "error", text: "请填写完整所有车辆的车牌和型号。" });
+        return;
+      }
     }
 
     setIsSubmitting(true);
     setMessage(null);
 
     try {
-      const newDoc = {
+      const commonData = {
         teacherName: selectedTeacher,
-        plateNumber: plateNumber,
-        carModel: carModel,
         createdAt: serverTimestamp(),
       };
-      const docRef = await addDoc(collection(db, "plate_numbers"), newDoc);
-      setMessage({ type: "success", text: "提交成功，感谢您的配合。" });
-      setRegistrations(prev => [{ id: docRef.id, ...newDoc, createdAt: new Date() }, ...prev]);
+
+      if (!hasVehicle) {
+        // No car scenario
+        const docRef = await addDoc(collection(db, "plate_numbers"), {
+          ...commonData,
+          plateNumber: "N/A",
+          carModel: "无车辆 (No Vehicle)",
+        });
+        setRegistrations(prev => [{ id: docRef.id, ...commonData, plateNumber: "N/A", carModel: "无车辆", createdAt: new Date() }, ...prev]);
+      } else {
+        // Multi car scenario
+        const promises = vehicles.map(v => addDoc(collection(db, "plate_numbers"), {
+          ...commonData,
+          plateNumber: v.plate.trim().toUpperCase(),
+          carModel: v.model.trim().toUpperCase(),
+        }));
+        const results = await Promise.all(promises);
+        const newRecords = results.map((ref, i) => ({
+          id: ref.id,
+          ...commonData,
+          plateNumber: vehicles[i].plate.trim().toUpperCase(),
+          carModel: vehicles[i].model.trim().toUpperCase(),
+          createdAt: new Date()
+        }));
+        setRegistrations(prev => [...newRecords, ...prev]);
+      }
+
+      setMessage({ type: "success", text: "提交成功，感谢您的配合！" });
       setSelectedTeacher("");
-      setPlateNumber("");
-      setCarModel("");
+      setVehicles([{ plate: "", model: "" }]);
+      setHasVehicle(true);
     } catch (error: any) {
-      setMessage({ type: "error", text: "提交失败，请重试。" });
+      setMessage({ type: "error", text: "提交失败，请检查网络并重试。" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Admin Actions: Records
+  // Admin Actions
   const startEditing = (reg: any) => {
     setEditingId(reg.id);
     setEditForm({
@@ -177,7 +219,6 @@ export default function Home() {
     XLSX.writeFile(workbook, `CHKK_Plate_Numbers_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
-  // Admin Actions: Staff
   const handleAddStaff = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newStaffName.trim()) return;
@@ -222,13 +263,13 @@ export default function Home() {
   }, [registrations, searchQuery]);
 
   return (
-    <main className="min-h-screen py-8 md:py-16 px-4">
+    <main className="min-h-screen py-8 md:py-16 px-4 bg-slate-50/20">
       <div className="max-w-4xl mx-auto space-y-12">
         {/* Unified Header */}
         <div className="text-center space-y-3 pb-8 border-b border-slate-200">
           <div className="w-12 h-1 bg-blue-600 mx-auto mb-6"></div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">车辆登记管理系统</h1>
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em]">CHKK Campus Vehicle Registration // SPA v3.0</p>
+          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em]">CHKK Campus Vehicle Registration // Unified SPA</p>
         </div>
 
         {/* Global Navigation */}
@@ -257,40 +298,74 @@ export default function Home() {
         {viewMode === "survey" && (
           <div className="max-w-2xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="card-formal p-8 md:p-10">
-              <form onSubmit={handleSubmitSurvey} className="space-y-8">
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <TeacherSelector
-                      selectedTeacher={selectedTeacher}
-                      onSelect={setSelectedTeacher}
-                      teachers={unsubmittedTeachers}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">车牌号码</label>
-                    <PlateInput value={plateNumber} onChange={setPlateNumber} />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">车辆型号</label>
-                    <CarModelInput value={carModel} onChange={setCarModel} />
+              <form onSubmit={handleSubmitSurvey} className="space-y-10">
+                {/* 1. Teacher Selector */}
+                <div className="space-y-4">
+                  <TeacherSelector
+                    selectedTeacher={selectedTeacher}
+                    onSelect={setSelectedTeacher}
+                    teachers={unsubmittedTeachers}
+                  />
+                  
+                  {/* No Car Checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border-2 border-slate-100/50 hover:border-blue-200 transition-all cursor-pointer" onClick={() => setHasVehicle(!hasVehicle)}>
+                    <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${!hasVehicle ? 'bg-blue-600 border-blue-600' : 'bg-white border-slate-300'}`}>
+                      {!hasVehicle && <span className="text-white text-xs">✓</span>}
+                    </div>
+                    <span className="text-sm font-bold text-slate-700">我没有驾驶车辆 (No Vehicle)</span>
                   </div>
                 </div>
 
+                {hasVehicle && (
+                  <div className="space-y-8 animate-in zoom-in-95 duration-300">
+                    <div className="flex items-center gap-4">
+                      <div className="h-[2px] flex-1 bg-slate-100"></div>
+                      <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">填写车辆信息</span>
+                      <div className="h-[2px] flex-1 bg-slate-100"></div>
+                    </div>
+
+                    {vehicles.map((v, index) => (
+                      <div key={index} className="relative space-y-6 p-6 border-2 border-slate-100 rounded-2xl bg-white/50">
+                        {vehicles.length > 1 && (
+                          <button 
+                            type="button"
+                            onClick={() => handleRemoveVehicleRow(index)}
+                            className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-lg hover:bg-rose-600 transition-colors z-10"
+                          >
+                            ✕
+                          </button>
+                        )}
+                        <PlateInput value={v.plate} onChange={(val) => updateVehicle(index, "plate", val)} />
+                        <CarModelInput value={v.model} onChange={(val) => updateVehicle(index, "model", val)} />
+                      </div>
+                    ))}
+
+                    <button 
+                      type="button"
+                      onClick={handleAddVehicleRow}
+                      className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold text-sm hover:border-blue-400 hover:text-blue-500 transition-all flex items-center justify-center gap-2 group"
+                    >
+                      <span className="text-xl group-hover:scale-125 transition-transform">➕</span> 添加另一辆车
+                    </button>
+                  </div>
+                )}
+
                 {message && (
-                  <div className={`p-4 rounded border text-sm font-medium animate-in zoom-in-95 duration-200 ${message.type === "success" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-rose-50 text-rose-700 border-rose-200"}`}>
+                  <div className={`p-4 rounded-xl border-2 text-sm font-bold animate-in zoom-in-95 duration-200 ${message.type === "success" ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-rose-50 text-rose-700 border-rose-100"}`}>
                     {message.text}
                   </div>
                 )}
 
-                <button type="submit" disabled={isSubmitting} className="w-full btn-primary disabled:bg-slate-300 text-sm uppercase tracking-widest">
-                  {isSubmitting ? "正在提交..." : "立即提交登记"}
+                <button type="submit" disabled={isSubmitting} className="w-full btn-primary disabled:bg-slate-300 py-6 text-base uppercase tracking-widest shadow-xl shadow-blue-500/20">
+                  {isSubmitting ? "正在为您存储数据..." : "立即提交登记"}
                 </button>
               </form>
             </div>
 
+            {/* Pending List */}
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">待登记名单 ({unsubmittedTeachers.length})</h2>
+                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">待核对名单 ({unsubmittedTeachers.length})</h2>
                 <div className="h-[1px] flex-1 bg-slate-200 ml-6"></div>
               </div>
               <div className="card-formal overflow-hidden">
@@ -304,7 +379,7 @@ export default function Home() {
                         </div>
                       ))}
                     </div>
-                  ) : <div className="text-center py-8 text-slate-400 animate-pulse uppercase text-xs font-bold">同步中...</div>}
+                  ) : <div className="text-center py-8 text-slate-400 animate-pulse uppercase text-xs font-bold">后台同步中...</div>}
                 </div>
               </div>
             </div>
@@ -332,7 +407,13 @@ export default function Home() {
                     {registrations.map((reg) => (
                       <tr key={reg.id}>
                         <td><span className="font-bold text-slate-700">{reg.teacherName}</span></td>
-                        <td><span className="px-2 py-1 bg-slate-100 text-slate-800 rounded font-mono text-xs font-bold border border-slate-200">{reg.plateNumber}</span></td>
+                        <td>
+                          {reg.plateNumber === "N/A" ? (
+                            <span className="text-slate-400 italic text-xs">无</span>
+                          ) : (
+                            <span className="px-2 py-1 bg-slate-100 text-slate-800 rounded font-mono text-xs font-bold border border-slate-200">{reg.plateNumber}</span>
+                          )}
+                        </td>
                         <td><span className="text-xs text-slate-600 font-medium">{reg.carModel}</span></td>
                       </tr>
                     ))}
@@ -350,7 +431,7 @@ export default function Home() {
               <div className="max-w-md mx-auto card-formal p-10 space-y-6">
                 <div className="text-center space-y-2">
                   <h2 className="text-xl font-bold text-slate-900 uppercase">身份验证</h2>
-                  <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">请输入管理员密码以开启管理权限</p>
+                  <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">请输入管理员密码</p>
                 </div>
                 <form onSubmit={handleAdminLogin} className="space-y-4">
                   <input
@@ -361,20 +442,19 @@ export default function Home() {
                     className="input-formal text-center"
                     autoFocus
                   />
-                  <button type="submit" className="w-full btn-primary font-bold">解锁进入</button>
+                  <button type="submit" className="w-full btn-primary font-bold">验证权限</button>
                 </form>
               </div>
             ) : (
               <div className="space-y-8">
-                {/* Admin Sub Navigation */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-slate-200">
                   <div className="flex gap-6">
                     <button onClick={() => setActiveAdminTab("records")} className={`text-xs font-bold uppercase tracking-[0.2em] pb-3 border-b-2 transition-all ${activeAdminTab === 'records' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400'}`}>数据管理</button>
                     <button onClick={() => setActiveAdminTab("staff")} className={`text-xs font-bold uppercase tracking-[0.2em] pb-3 border-b-2 transition-all ${activeAdminTab === 'staff' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400'}`}>人员名单</button>
                   </div>
                   <div className="flex gap-3 pb-3">
-                    <button onClick={exportToExcel} className="btn-secondary text-[10px] uppercase font-bold px-4 py-2 border-blue-200 text-blue-600">📊 导出 EXCEL</button>
-                    <button onClick={() => setIsAdminAuthenticated(false)} className="px-4 py-2 text-[10px] font-bold text-rose-600 uppercase">退出登录</button>
+                    <button onClick={exportToExcel} className="btn-secondary text-[10px] uppercase font-bold px-4 py-2 border-blue-200 text-blue-600">📊 导出</button>
+                    <button onClick={() => setIsAdminAuthenticated(false)} className="px-4 py-2 text-[10px] font-bold text-rose-600 uppercase">退出</button>
                   </div>
                 </div>
 
@@ -383,7 +463,7 @@ export default function Home() {
                     <div className="flex flex-col md:flex-row gap-4">
                       <input
                         type="text"
-                        placeholder="搜索记录..."
+                        placeholder="搜索姓名或车牌..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="flex-1 input-formal"
@@ -401,7 +481,7 @@ export default function Home() {
                           {filteredRegistrations.map((reg) => (
                             <tr key={reg.id}>
                               <td><span className="font-bold">{reg.teacherName}</span></td>
-                              <td><span className="px-2 py-1 bg-slate-100 text-slate-700 rounded font-mono text-xs font-bold">{reg.plateNumber}</span></td>
+                              <td><span className={reg.plateNumber === 'N/A' ? 'text-slate-300 italic text-xs' : 'px-2 py-1 bg-slate-100 text-slate-700 rounded font-mono text-xs font-bold'}>{reg.plateNumber}</span></td>
                               <td><span className="text-xs text-slate-500">{reg.carModel}</span></td>
                               <td className="text-right space-x-3">
                                 <button onClick={() => startEditing(reg)} className="text-blue-600 font-bold text-xs">编辑</button>
