@@ -154,17 +154,18 @@ export default function Home() {
             <div className="h-px flex-1 bg-slate-100 mx-4"></div>
           </div>
           
-          <div className="glass-dark rounded-3xl overflow-hidden min-h-[100px] max-h-[400px] flex flex-col items-center justify-center p-2">
+          <div className="glass-dark rounded-3xl overflow-hidden min-h-[200px] max-h-[500px] flex flex-col p-4">
             {isLoadingList ? (
-              <div className="p-12 text-slate-400 text-sm animate-pulse">
+              <div className="flex-1 flex items-center justify-center p-12 text-slate-400 text-sm animate-pulse">
                 正在加载名单...
               </div>
             ) : unsubmittedTeachers.length > 0 ? (
-              <div className="w-full overflow-y-auto custom-scrollbar p-6 grid grid-cols-2 gap-4">
+              <div className="w-full overflow-y-auto custom-scrollbar p-2 grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {unsubmittedTeachers.map((name) => (
                   <div 
                     key={name}
-                    className="truncate text-[11px] font-bold text-slate-500 bg-white shadow-sm border border-slate-100 px-3 py-2 rounded-lg"
+                    className="truncate text-[10px] font-bold text-slate-500 bg-white/80 shadow-sm border border-slate-100 px-3 py-2.5 rounded-xl hover:bg-white transition-colors"
+                    title={name}
                   >
                     {name}
                   </div>
