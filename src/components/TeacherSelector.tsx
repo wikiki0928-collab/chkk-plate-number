@@ -16,7 +16,7 @@ export default function TeacherSelector({ onSelect, selectedTeacher }: TeacherSe
   const filteredTeachers = useMemo(() => {
     return TEACHERS.filter((teacher) =>
       teacher.toLowerCase().includes(query.toLowerCase())
-    ).slice(0, 10);
+    );
   }, [query]);
 
   useEffect(() => {
