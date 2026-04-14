@@ -54,8 +54,12 @@ export default function AdminPage() {
         ...doc.data()
       })) as Registration[];
       setRegistrations(data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } catch (error: any) {
+      console.error("Firebase Fetch Error:", error);
+      setStatusMessage({ 
+        type: "error", 
+        text: `无法获取数据: ${error.code === 'permission-denied' ? '权限不足（请检查 Firestore 规则）' : error.message}` 
+      });
     } finally {
       setIsLoading(false);
     }
@@ -64,14 +68,15 @@ export default function AdminPage() {
   const handleDelete = async (id: string, teacher: string) => {
     if (window.confirm(`确定要删除 ${teacher} 的记录吗？`)) {
       try {
-        await deleteDoc(doc(db, "plate_numbers", id));
-        setRegistrations(prev => prev.filter(reg => reg.id !== id));
-        setStatusMessage({ type: "success", text: "记录已成功删除。" });
-      } catch (error) {
-        setStatusMessage({ type: "error", text: "删除失败，请重试。" });
-      }
+      await deleteDoc(doc(db, "plate_numbers", id));
+      setRegistrations(prev => prev.filter(reg => reg.id !== id));
+      setStatusMessage({ type: "success", text: "记录已成功删除。" });
+    } catch (error: any) {
+      console.error("Delete Error:", error);
+      setStatusMessage({ type: "error", text: `删除失败: ${error.message}` });
     }
-  };
+  }
+};
 
   const startEditing = (reg: Registration) => {
     setEditingId(reg.id);
@@ -91,8 +96,9 @@ export default function AdminPage() {
       setRegistrations(prev => prev.map(reg => reg.id === editingId ? { ...reg, ...editForm } : reg));
       setEditingId(null);
       setStatusMessage({ type: "success", text: "记录已更新。" });
-    } catch (error) {
-      setStatusMessage({ type: "error", text: "更新失败，请重试。" });
+    } catch (error: any) {
+      console.error("Update Error:", error);
+      setStatusMessage({ type: "error", text: `更新失败: ${error.message}` });
     }
   };
 
