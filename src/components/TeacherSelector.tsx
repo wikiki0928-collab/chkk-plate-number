@@ -1,23 +1,22 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
-import { TEACHERS } from "@/lib/constants";
-
 interface TeacherSelectorProps {
   onSelect: (name: string) => void;
   selectedTeacher: string;
+  teachers: string[];
 }
 
-export default function TeacherSelector({ onSelect, selectedTeacher }: TeacherSelectorProps) {
+export default function TeacherSelector({ onSelect, selectedTeacher, teachers }: TeacherSelectorProps) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const filteredTeachers = useMemo(() => {
-    return TEACHERS.filter((teacher) =>
+    return teachers.filter((teacher) =>
       teacher.toLowerCase().includes(query.toLowerCase())
     );
-  }, [query]);
+  }, [query, teachers]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
