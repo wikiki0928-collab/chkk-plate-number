@@ -17,7 +17,7 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTeacher || !plateNumber || !carModel) {
-      setMessage({ type: "error", text: "请确保已选择老师、输入车驾型号并输入车牌号码。" });
+      setMessage({ type: "error", text: "所有字段均为必填项，请补充完整。" });
       return;
     }
 
@@ -25,10 +25,8 @@ export default function Home() {
     setMessage(null);
 
     try {
-      // If Firebase is not configured yet, this will fail or time out.
-      // We check if API key exists to give a better message.
       if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
-        throw new Error("Firebase API Key 尚未配置。请联系管理员。");
+        throw new Error("配置文件缺失，请联系管理员。");
       }
 
       await addDoc(collection(db, "plate_numbers"), {
@@ -38,59 +36,73 @@ export default function Home() {
         createdAt: serverTimestamp(),
       });
 
-      setMessage({ type: "success", text: "提交成功！感谢您的配合。" });
+      setMessage({ type: "success", text: "已成功记录您的车牌信息。感谢配合！" });
       setSelectedTeacher("");
       setPlateNumber("");
       setCarModel("");
     } catch (error: any) {
       console.error("Error submitting:", error);
-      setMessage({ type: "error", text: error.message || "提交失败，请稍后再试。" });
+      setMessage({ type: "error", text: error.message || "提交失败，请检查网络连接。" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6 md:p-24 bg-transparent relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-0 -left-4 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-      <div className="absolute top-0 -right-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-      <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+    <main className="relative flex min-h-screen flex-col items-center justify-center p-4 bg-grid">
+      {/* Dynamic Background Blobs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[120px] animate-blob"></div>
+        <div className="absolute top-[20%] right-[-10%] w-[45%] h-[45%] bg-purple-600/20 rounded-full blur-[120px] animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-[-10%] left-[20%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[120px] animate-blob animation-delay-4000"></div>
+      </div>
 
-      <div className="z-10 w-full max-w-lg bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl relative">
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2">
-            CHKK <span className="text-blue-500">PLATE</span> NUMBER
+      <div className="z-10 w-full max-w-[480px] space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+        {/* Header section */}
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/10 glass-dark mb-4">
+            <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+          </div>
+          <h1 className="text-5xl font-black tracking-tighter text-gradient leading-tight">
+            CHKK ADMIN<br/><span className="text-blue-500">SURVEY</span>
           </h1>
-          <p className="text-gray-400">
-            全校老师车牌号码登记系统
+          <p className="text-gray-400 font-medium tracking-wide">
+            全校老师车牌号码及车型登记
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <TeacherSelector
-            selectedTeacher={selectedTeacher}
-            onSelect={setSelectedTeacher}
-          />
+        {/* Form section */}
+        <form onSubmit={handleSubmit} className="glass rounded-[40px] p-10 space-y-8 relative overflow-hidden group">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+          
+          <div className="space-y-6">
+            <TeacherSelector
+              selectedTeacher={selectedTeacher}
+              onSelect={setSelectedTeacher}
+            />
 
-          <PlateInput
-            value={plateNumber}
-            onChange={setPlateNumber}
-          />
+            <PlateInput
+              value={plateNumber}
+              onChange={setPlateNumber}
+            />
 
-          <CarModelInput
-            value={carModel}
-            onChange={setCarModel}
-          />
+            <CarModelInput
+              value={carModel}
+              onChange={setCarModel}
+            />
+          </div>
 
           {message && (
             <div
-              className={`p-4 rounded-xl text-sm font-medium animate-in slide-in-from-top-2 duration-300 ${
+              className={`p-5 rounded-2xl text-sm font-semibold animate-in zoom-in-95 duration-300 flex items-center gap-3 ${
                 message.type === "success"
                   ? "bg-green-500/10 text-green-400 border border-green-500/20"
                   : "bg-red-500/10 text-red-400 border border-red-500/20"
               }`}
             >
+              <span className="w-2 h-2 rounded-full bg-current animate-pulse"></span>
               {message.text}
             </div>
           )}
@@ -98,36 +110,38 @@ export default function Home() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-4 px-6 rounded-xl font-bold text-white transition-all transform active:scale-95 flex items-center justify-center ${
+            className={`group relative w-full py-5 px-6 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all overflow-hidden ${
               isSubmitting
-                ? "bg-gray-700 cursor-not-allowed"
-                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-[0_0_20px_rgba(37,99,235,0.4)]"
+                ? "bg-gray-800 text-gray-500 cursor-not-allowed"
+                : "bg-white text-black hover:scale-[1.02] active:scale-[0.98] shadow-2xl hover:shadow-white/20"
             }`}
           >
             {isSubmitting ? (
-              <span className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                正在提交...
+                Processing...
               </span>
             ) : (
-              "提交记录"
+              <span className="relative z-10">提交登记信息</span>
             )}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-10 transition-opacity"></div>
           </button>
         </form>
 
-        <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold">
-            SECURELY POWERED BY FIREBASE
+        <footer className="pt-8 text-center space-y-4">
+          <div className="flex items-center justify-center gap-4 text-[10px] text-gray-500 font-bold uppercase tracking-[0.3em]">
+            <span className="h-px w-8 bg-gray-800"></span>
+            Cloud Secure Infrastructure
+            <span className="h-px w-8 bg-gray-800"></span>
+          </div>
+          <p className="text-gray-600 text-[10px] font-medium">
+            &copy; {new Date().getFullYear()} CHKK CAMPUS OPS. ALL RIGHTS RESERVED.
           </p>
-        </div>
+        </footer>
       </div>
-
-      <footer className="mt-12 text-gray-500 text-sm">
-        &copy; {new Date().getFullYear()} CHKK Development Team. All rights reserved.
-      </footer>
     </main>
   );
 }
