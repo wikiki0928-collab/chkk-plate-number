@@ -1,132 +1,128 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
-@theme {
-  --color-brand-primary: #1e293b;
-  --color-brand-accent: #2563eb;
-  --color-brand-bg: #f8fafc;
-  --color-brand-border: #e2e8f0;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --foreground: #0f172a;
-  --background: #f8fafc;
-  --accent: #2563eb;
+  --foreground-rgb: 30, 41, 59;
+  --background-start-rgb: 248, 250, 252;
+  --background-end-rgb: 241, 245, 249;
+  
+  --brand-orange: #FB923C;
+  --brand-orange-dark: #EA580C;
+  --brand-blue: #3B82F6;
+  --brand-blue-dark: #1D4ED8;
+
+  --accent: #FB923C;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  font-family: 'Outfit', sans-serif;
   -webkit-font-smoothing: antialiased;
-  background-image: 
-    radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
-  background-size: 24px 24px;
 }
 
-/* Formal Corporate Styles */
-.card-formal {
-  background: #ffffff;
-  border: 1px solid var(--color-brand-border);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+@layer components {
+  /* Main Cards */
+  .card-modern {
+    @apply bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-white transition-all duration-300;
+  }
+
+  /* Navigation Pills */
+  .nav-pill-container {
+    @apply bg-slate-200/50 backdrop-blur-md p-1.5 rounded-full flex gap-1 border border-white/50 shadow-inner;
+  }
+
+  .nav-pill-item {
+    @apply px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-300 flex items-center gap-2;
+  }
+
+  .nav-pill-item-active {
+    @apply bg-white text-slate-900 shadow-md ring-1 ring-slate-900/5;
+  }
+
+  .nav-pill-item-inactive {
+    @apply text-slate-400 hover:text-slate-600 hover:bg-white/40;
+  }
+
+  /* Buttons */
+  .btn-vibrant {
+    @apply bg-gradient-to-br from-orange-400 to-orange-600 text-white rounded-2xl font-bold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 flex items-center justify-center gap-2;
+  }
+
+  .btn-secondary-modern {
+    @apply bg-white border-2 border-slate-100 text-slate-600 rounded-2xl font-bold px-8 py-3.5 transition-all duration-200 hover:border-slate-200 hover:bg-slate-50 active:scale-95 flex items-center justify-center gap-2;
+  }
+
+  /* Inputs */
+  .input-modern {
+    @apply w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-4 text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 transition-all font-semibold;
+  }
+
+  /* Tables */
+  .table-container-modern {
+    @apply bg-white rounded-[1.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden;
+  }
+
+  .table-modern {
+    @apply w-full border-separate border-spacing-0;
+  }
+
+  .table-modern th {
+    @apply px-6 py-5 text-left text-[11px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-50 bg-slate-50/30;
+  }
+
+  .table-modern td {
+    @apply px-6 py-6 text-sm text-slate-600 border-b border-slate-50 transition-colors;
+  }
+
+  .table-modern tr:hover td {
+    @apply bg-blue-50/30;
+  }
+
+  /* Badges */
+  .badge-modern {
+    @apply px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight border;
+  }
+  
+  .badge-blue { @apply bg-blue-50 text-blue-600 border-blue-100; }
+  .badge-orange { @apply bg-orange-50 text-orange-600 border-orange-100; }
 }
 
-.input-formal {
-  width: 100%;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  padding: 0.75rem 1rem;
-  transition: all 0.2s;
-  font-size: 0.875rem;
+/* Animations */
+.animate-in {
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.input-formal:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
-.btn-primary {
-  background-color: var(--accent);
-  color: white;
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  transition: background-color 0.2s;
-}
-
-.btn-primary:hover {
-  background-color: #1d4ed8;
-}
-
-.btn-secondary {
-  background-color: white;
-  color: #475569;
-  border: 1px solid #cbd5e1;
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-  background-color: #f1f5f9;
-  border-color: #94a3b8;
-}
-
-/* Formal Table Styles */
-.table-container {
-  overflow-x: auto;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-}
-
-table.formal {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-table.formal th {
-  background: #f1f5f9;
-  color: #475569;
-  font-weight: 600;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 1rem 1.5rem;
-  text-align: left;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-table.formal td {
-  padding: 1rem 1.5rem;
-  font-size: 0.875rem;
-  color: #334155;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-table.formal tr:last-child td {
-  border-bottom: none;
-}
-
-table.formal tr:hover td {
-  background: #f8fafc;
-}
-
-/* Custom Scrollbar for Formal UI */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
-  border-radius: 3px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
+  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
 }
 
+/* Form Section Styling */
+.form-section-header {
+  @apply flex items-center gap-4 py-6;
+}
+
+.form-section-dot {
+  @apply w-2 h-2 rounded-full bg-blue-500 shadow-lg shadow-blue-500/40;
+}
