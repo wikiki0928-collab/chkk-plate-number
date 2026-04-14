@@ -62,10 +62,7 @@ export default function Home() {
       });
 
       setMessage({ type: "success", text: "提交成功！感谢您的配合。" });
-      
-      // Update local submitted names to reflect change immediately
       setSubmittedNames(prev => Array.from(new Set([selectedTeacher, ...prev])));
-      
       setSelectedTeacher("");
       setPlateNumber("");
       setCarModel("");
@@ -78,32 +75,36 @@ export default function Home() {
   };
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center bg-grid-light py-12 px-4 md:py-24">
-      {/* Soft Background Blobs */}
+    <main className="relative flex min-h-screen flex-col items-center bg-mesh py-12 px-4 md:py-20 lg:py-24">
+      {/* Dynamic Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100 rounded-full blur-[100px] opacity-40 animate-blob"></div>
-        <div className="absolute top-[20%] right-[-10%] w-[45%] h-[45%] bg-sky-100 rounded-full blur-[100px] opacity-40 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-[-15%] left-[-15%] w-[60%] h-[60%] bg-blue-300 rounded-full blur-[140px] opacity-25 animate-blob"></div>
+        <div className="absolute top-[10%] right-[-15%] w-[50%] h-[50%] bg-purple-300 rounded-full blur-[140px] opacity-25 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-[-15%] left-[10%] w-[55%] h-[55%] bg-emerald-200 rounded-full blur-[140px] opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
-      <div className="z-10 w-full max-w-[500px] space-y-12">
-        {/* Header section */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center p-2 rounded-2xl bg-white shadow-sm border border-slate-100 mb-4">
-            <svg className="w-8 h-8 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+      <div className="z-10 w-full max-w-[540px] space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+        {/* Header section with more style */}
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-[32px] bg-white shadow-2xl shadow-blue-500/10 border-4 border-white transform rotate-6 hover:rotate-0 transition-transform duration-500 cursor-default">
+            <svg className="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
             </svg>
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">
-            CHKK 车牌号码登记
+          <h1 className="text-5xl font-black tracking-tighter text-slate-900 leading-tight">
+            CHKK ADMIN<br/><span className="text-blue-600 underline decoration-blue-200 underline-offset-8">SURVEY</span>
           </h1>
-          <p className="text-slate-500 font-medium">
-            全校老师车牌号码及车型例行调查
+          <p className="text-slate-500 font-bold tracking-widest uppercase text-xs">
+            CAMPUS VEHICLE REGISTRATION SYSTEM
           </p>
         </div>
 
-        {/* Form section */}
-        <div className="glass rounded-[32px] p-8 md:p-10 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Main Form Card */}
+        <div className="glass rounded-[48px] p-8 md:p-12 space-y-10 relative overflow-hidden">
+          {/* Accent decoration */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl -mr-16 -mt-16"></div>
+          
+          <form onSubmit={handleSubmit} className="space-y-10">
             <TeacherSelector
               selectedTeacher={selectedTeacher}
               onSelect={setSelectedTeacher}
@@ -121,69 +122,84 @@ export default function Home() {
 
             {message && (
               <div
-                className={`p-4 rounded-xl text-sm font-bold animate-in fade-in duration-300 flex items-center gap-3 ${
+                className={`p-5 rounded-2xl text-sm font-black animate-in zoom-in-95 duration-300 flex items-center gap-4 ${
                   message.type === "success"
-                    ? "bg-green-50 text-green-700 border border-green-100"
-                    : "bg-red-50 text-red-700 border border-red-100"
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                    : "bg-rose-50 text-rose-700 border border-rose-100"
                 }`}
               >
-                {message.type === "success" ? "✓" : "!"} {message.text}
+                <span className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center ${message.type === "success" ? "bg-emerald-100" : "bg-rose-100"}`}>
+                  {message.type === "success" ? "✓" : "!"}
+                </span>
+                {message.text}
               </div>
             )}
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full py-4.5 px-6 rounded-2xl font-bold text-sm uppercase tracking-widest transition-all ${
+              className={`group relative w-full py-5 px-6 rounded-[24px] font-black text-xs uppercase tracking-[0.3em] transition-all transform active:scale-[0.97] overflow-hidden ${
                 isSubmitting
-                  ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                  : "bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.98] shadow-lg shadow-slate-200"
+                  ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                  : "bg-slate-900 text-white shadow-[0_20px_40px_-10px_rgba(15,23,42,0.3)] hover:shadow-blue-500/20"
               }`}
             >
-              {isSubmitting ? "处理中..." : "提交登记记录"}
+              {isSubmitting ? (
+                "PROCESSING..."
+              ) : (
+                <>
+                  <span className="relative z-10">SUBMIT REGISTRATION</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </>
+              )}
             </button>
           </form>
         </div>
 
-        {/* Waitlist section */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between px-2">
-            <h2 className="text-sm font-black uppercase tracking-widest text-slate-400">
-              待填写老师名单 ({unsubmittedTeachers.length})
+        {/* Waitlist Section with Fixed Layout */}
+        <div className="space-y-8 animate-in delay-500 duration-1000 fill-mode-both">
+          <div className="flex items-center gap-6 px-4">
+            <h2 className="text-xs font-black uppercase tracking-[0.4em] text-slate-400 flex-shrink-0">
+              PENDING LIST ({unsubmittedTeachers.length})
             </h2>
-            <div className="h-px flex-1 bg-slate-100 mx-4"></div>
+            <div className="h-px flex-1 bg-slate-200/50"></div>
           </div>
           
-          <div className="glass-dark rounded-3xl overflow-hidden min-h-[200px] max-h-[500px] flex flex-col p-4">
+          <div className="glass overflow-hidden rounded-[40px] p-6 min-h-[240px] max-h-[600px] flex flex-col">
             {isLoadingList ? (
-              <div className="flex-1 flex items-center justify-center p-12 text-slate-400 text-sm animate-pulse">
-                正在加载名单...
+              <div className="flex-1 flex items-center justify-center p-12 text-slate-400 text-sm font-bold uppercase tracking-widest animate-pulse">
+                SYNCING DATA...
               </div>
             ) : unsubmittedTeachers.length > 0 ? (
-              <div className="w-full overflow-y-auto custom-scrollbar p-2 grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="w-full overflow-y-auto custom-scrollbar pr-2 grid grid-cols-2 md:grid-cols-2 gap-4">
                 {unsubmittedTeachers.map((name) => (
                   <div 
                     key={name}
-                    className="truncate text-[10px] font-bold text-slate-500 bg-white/80 shadow-sm border border-slate-100 px-3 py-2.5 rounded-xl hover:bg-white transition-colors"
+                    className="glass-pill flex items-center px-4 py-4 rounded-2xl truncate transition-all hover:scale-[1.03] hover:shadow-xl hover:border-blue-400 group"
                     title={name}
                   >
-                    {name}
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-300 mr-3 group-hover:bg-blue-500 transition-colors"></span>
+                    <span className="text-xs font-black text-slate-600 group-hover:text-blue-900 truncate leading-relaxed">
+                      {name}
+                    </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="p-12 text-center space-y-2">
-                <div className="text-2xl">🎉</div>
-                <p className="text-sm font-bold text-slate-600">所有老师已填妥！</p>
-                <p className="text-xs text-slate-400 font-medium">感谢各位老师的配合</p>
+              <div className="flex-1 flex flex-col items-center justify-center p-12 text-center space-y-4">
+                <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center text-4xl shadow-inner">🎉</div>
+                <div className="space-y-1">
+                  <p className="text-sm font-black text-slate-800 uppercase tracking-widest">Completed!</p>
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-tighter">All teachers have checked in.</p>
+                </div>
               </div>
             )}
           </div>
         </div>
 
-        <footer className="text-center pt-8">
-          <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.3em]">
-            &copy; {new Date().getFullYear()} CHKK Administration Unit
+        <footer className="text-center pt-8 space-y-2">
+          <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.5em]">
+            SYSTEM V2.0 // CHKK OPS
           </p>
         </footer>
       </div>

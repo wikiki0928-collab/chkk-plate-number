@@ -23,7 +23,6 @@ export default function TeacherSelector({ onSelect, selectedTeacher }: TeacherSe
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
-        // If nothing was selected, reset query
         if (!selectedTeacher) setQuery("");
       }
     };
@@ -32,24 +31,25 @@ export default function TeacherSelector({ onSelect, selectedTeacher }: TeacherSe
   }, [selectedTeacher]);
 
   return (
-    <div className="relative w-full space-y-2" ref={containerRef}>
-      <label className="block text-sm font-semibold text-slate-700 ml-1">
-        老师姓名 <span className="text-red-500">*</span>
+    <div className="relative w-full space-y-2.5" ref={containerRef}>
+      <label className="flex items-center text-sm font-bold text-slate-600 px-1">
+        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 text-blue-600 mr-2 text-[10px] font-black">1</span>
+        老师姓名 <span className="text-red-500 ml-1 opacity-50">*</span>
       </label>
-      <div className="relative">
+      <div className="relative group">
         <div 
-          className={`flex items-center w-full bg-slate-50 border rounded-2xl px-5 py-4 transition-all duration-200 cursor-text ${
-            isOpen ? "border-sky-500 shadow-[0_0_0_4px_rgba(14,165,233,0.1)] bg-white" : "border-slate-200 hover:border-slate-300"
+          className={`flex items-center w-full bg-blue-50/30 border-2 rounded-2xl px-5 py-4.5 transition-all duration-300 cursor-text ${
+            isOpen ? "border-blue-500 shadow-xl bg-white scale-[1.01]" : "border-slate-100 hover:border-blue-200"
           }`}
           onClick={() => setIsOpen(true)}
         >
-          <svg className="w-5 h-5 text-slate-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          <svg className="w-5 h-5 text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
           </svg>
           <input
             type="text"
-            className="flex-1 bg-transparent outline-none text-slate-900 font-medium placeholder-slate-400"
-            placeholder={selectedTeacher || "点击搜索您的姓名..."}
+            className="flex-1 bg-transparent outline-none text-slate-900 font-bold placeholder-slate-300"
+            placeholder={selectedTeacher || "在此搜索您的姓名..."}
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -58,25 +58,27 @@ export default function TeacherSelector({ onSelect, selectedTeacher }: TeacherSe
             onFocus={() => setIsOpen(true)}
           />
           <svg 
-            className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} 
+            className={`w-5 h-5 text-blue-300 transition-transform duration-300 ${isOpen ? "rotate-180 text-blue-500" : ""}`} 
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path>
           </svg>
         </div>
 
         {isOpen && (
-          <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-            <div className="max-h-60 overflow-y-auto custom-scrollbar">
+          <div className="absolute z-50 w-full mt-3 bg-white/95 border border-slate-100 rounded-[24px] shadow-2xl overflow-hidden backdrop-blur-xl animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="max-h-72 overflow-y-auto custom-scrollbar p-2">
               {filteredTeachers.length > 0 ? (
                 filteredTeachers.map((teacher) => (
                   <button
                     key={teacher}
                     type="button"
-                    className={`w-full text-left px-5 py-4 text-slate-700 hover:bg-sky-50 transition-colors border-b border-slate-50 last:border-0 flex items-center justify-between ${
-                      selectedTeacher === teacher ? "bg-sky-50 text-sky-700 font-bold" : "font-medium"
+                    className={`w-full text-left px-5 py-4 rounded-xl transition-all mb-1 last:mb-0 flex items-center justify-between ${
+                      selectedTeacher === teacher 
+                        ? "bg-blue-600 text-white font-black shadow-lg" 
+                        : "text-slate-600 hover:bg-blue-50 font-bold"
                     }`}
                     onClick={() => {
                       onSelect(teacher);
@@ -86,15 +88,15 @@ export default function TeacherSelector({ onSelect, selectedTeacher }: TeacherSe
                   >
                     {teacher}
                     {selectedTeacher === teacher && (
-                      <svg className="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
                       </svg>
                     )}
                   </button>
                 ))
               ) : (
-                <div className="px-5 py-8 text-center text-slate-400">
-                  没有找到相关老师
+                <div className="px-5 py-10 text-center text-slate-400 font-medium italic">
+                  抱歉，未找到相匹配的老师
                 </div>
               )}
             </div>
@@ -102,9 +104,9 @@ export default function TeacherSelector({ onSelect, selectedTeacher }: TeacherSe
         )}
       </div>
       {selectedTeacher && !isOpen && (
-        <div className="flex items-center text-[11px] text-sky-600 font-bold uppercase tracking-wider ml-1 animate-in fade-in">
-          <span className="w-1 h-1 rounded-full bg-sky-500 mr-1.5"></span>
-          已选定: {selectedTeacher}
+        <div className="flex items-center text-[11px] text-blue-600 font-black uppercase tracking-widest ml-2 animate-in slide-in-from-left-2">
+          <span className="flex w-2 h-2 rounded-full bg-blue-500 mr-2 ring-4 ring-blue-50"></span>
+          已确认身份: {selectedTeacher}
         </div>
       )}
     </div>
