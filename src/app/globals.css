@@ -1,32 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  --foreground-rgb: 30, 41, 59;
-  --background-start-rgb: 248, 250, 252;
-  --background-end-rgb: 241, 245, 249;
+@theme {
+  --color-brand-orange: #FB923C;
+  --color-brand-orange-dark: #EA580C;
+  --color-brand-blue: #3B82F6;
+  --color-brand-blue-dark: #1D4ED8;
   
-  --brand-orange: #FB923C;
-  --brand-orange-dark: #EA580C;
-  --brand-blue: #3B82F6;
-  --brand-blue-dark: #1D4ED8;
-
-  --accent: #FB923C;
+  --font-sans: 'Outfit', sans-serif;
+  
+  --radius-modern: 2rem;
+  --radius-pill: 9999px;
+  
+  --shadow-modern: 0 25px 50px -12px rgba(203, 213, 225, 0.5);
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-  font-family: 'Outfit', sans-serif;
-  -webkit-font-smoothing: antialiased;
+/* Base Styles */
+@layer base {
+  body {
+    @apply text-slate-900 bg-slate-50 antialiased font-sans;
+    background: linear-gradient(to bottom, transparent, #f1f5f9) #f8fafc;
+  }
 }
 
 @layer components {
