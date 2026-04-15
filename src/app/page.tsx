@@ -385,29 +385,43 @@ export default function Home() {
             </div>
 
             {/* Pending List Area */}
-            <div className="space-y-8">
-              <div className="flex items-center gap-6">
-                <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] whitespace-nowrap">待核对名单 ({unsubmittedTeachers.length})</h2>
-                <div className="h-[2px] flex-1 bg-slate-100 rounded-full"></div>
+            <div className="space-y-4">
+              {/* Header section */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">⚠️</span>
+                  <h2 className="text-sm font-black text-rose-600 tracking-tight">
+                    还没填写的老师 ({unsubmittedTeachers.length} 人)
+                  </h2>
+                </div>
+                <div className="h-[2px] flex-1 bg-rose-100 rounded-full"></div>
               </div>
-              <div className="card-modern overflow-hidden p-2">
-                <div className="max-h-[350px] overflow-y-auto custom-scrollbar p-6">
-                  {!isLoading ? (
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                      {unsubmittedTeachers.map((name) => (
-                        <div key={name} className="flex items-center p-4 border border-slate-50 rounded-2xl bg-slate-50/30 hover:bg-white hover:shadow-md transition-all group">
-                          <div className="w-1.5 h-1.5 rounded-full bg-slate-300 mr-4 group-hover:bg-blue-400 transition-colors"></div>
-                          <span className="text-[13px] font-bold text-slate-500 group-hover:text-slate-900 transition-colors truncate">{name}</span>
+              <p className="text-[11px] text-slate-400 font-semibold px-1">以下老师尚未提交车牌登记，请提醒他们尽快填写。</p>
+
+              <div className="card-modern overflow-hidden">
+                {!isLoading ? (
+                  unsubmittedTeachers.length > 0 ? (
+                    <div className="max-h-[380px] overflow-y-auto custom-scrollbar divide-y divide-slate-50">
+                      {unsubmittedTeachers.map((name, index) => (
+                        <div key={name} className="flex items-center gap-4 px-5 py-3.5 hover:bg-rose-50/50 transition-colors group">
+                          <span className="w-6 text-[11px] font-black text-slate-300 text-right shrink-0">{index + 1}</span>
+                          <div className="w-2 h-2 rounded-full bg-rose-400 shrink-0"></div>
+                          <span className="text-sm font-bold text-slate-700 group-hover:text-rose-700 transition-colors">{name}</span>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-12">
-                      <div className="inline-block w-8 h-8 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-                      <p className="text-xs font-black text-slate-300 uppercase letter tracking-widest">数据实时同步中...</p>
+                    <div className="py-12 text-center space-y-2">
+                      <span className="text-3xl">🎉</span>
+                      <p className="text-sm font-black text-emerald-600">所有老师已完成填写！</p>
                     </div>
-                  )}
-                </div>
+                  )
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="inline-block w-8 h-8 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+                    <p className="text-xs font-black text-slate-300 uppercase tracking-widest">数据同步中...</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
