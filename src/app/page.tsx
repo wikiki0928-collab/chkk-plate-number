@@ -258,50 +258,56 @@ export default function Home() {
   }, [registrations, searchQuery]);
 
   return (
-    <main className="min-h-screen py-8 md:py-16 px-4 bg-slate-50/20">
-      <div className="max-w-4xl mx-auto space-y-12">
+    <main className="min-h-screen py-4 md:py-16 px-3 md:px-4 bg-slate-50/20">
+      <div className="max-w-4xl mx-auto space-y-6 md:space-y-12">
         {/* Unified Modern Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-12 border-b border-slate-100">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-4xl font-black text-slate-900 tracking-tight">车辆登记管理系统</h1>
-              <span className="badge-modern badge-blue">v3.0 Official</span>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-6 pb-4 md:pb-12 border-b border-slate-100">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">车辆登记管理系统</h1>
+              <span className="badge-modern badge-blue hidden md:inline-flex">v3.0 Official</span>
             </div>
-            <p className="text-slate-400 text-sm font-medium tracking-wide">官方高清字体渲染 · 云端数据实时同步 · 校园安全保障</p>
+            <p className="text-slate-400 text-xs md:text-sm font-medium tracking-wide hidden md:block">官方高清字体渲染 · 云端数据实时同步 · 校园安全保障</p>
           </div>
           
           {/* Main Navigation Pill */}
-          <div className="nav-pill-container self-start md:self-center">
+          <div className="nav-pill-container self-start md:self-center w-full md:w-auto">
             <button 
               onClick={() => setViewMode("survey")}
-              className={`nav-pill-item ${viewMode === 'survey' ? 'nav-pill-item-active' : 'nav-pill-item-inactive'}`}
+              className={`nav-pill-item flex-1 md:flex-none justify-center ${viewMode === 'survey' ? 'nav-pill-item-active' : 'nav-pill-item-inactive'}`}
             >
-              <span className="text-lg">📋</span> 请愿登记
+              <span className="text-base">📋</span>
+              <span className="hidden sm:inline"> 请愿登记</span>
+              <span className="sm:hidden text-[10px] font-black">登记</span>
             </button>
             <button 
               onClick={() => setViewMode("public_list")}
-              className={`nav-pill-item ${viewMode === 'public_list' ? 'nav-pill-item-active' : 'nav-pill-item-inactive'}`}
+              className={`nav-pill-item flex-1 md:flex-none justify-center ${viewMode === 'public_list' ? 'nav-pill-item-active' : 'nav-pill-item-inactive'}`}
             >
-              <span className="text-lg">📊</span> 公开清单
+              <span className="text-base">📊</span>
+              <span className="hidden sm:inline"> 公开清单</span>
+              <span className="sm:hidden text-[10px] font-black">清单</span>
             </button>
             <button 
               onClick={() => setViewMode("admin_dashboard")}
-              className={`nav-pill-item ${viewMode === 'admin_dashboard' ? 'nav-pill-item-active' : 'nav-pill-item-inactive'}`}
+              className={`nav-pill-item flex-1 md:flex-none justify-center ${viewMode === 'admin_dashboard' ? 'nav-pill-item-active' : 'nav-pill-item-inactive'}`}
             >
-              <span className="text-lg">⚙️</span> 管理后台
+              <span className="text-base">⚙️</span>
+              <span className="hidden sm:inline"> 管理后台</span>
+              <span className="sm:hidden text-[10px] font-black">管理</span>
             </button>
           </div>
         </div>
 
         {/* --- SURVEY MODE --- */}
         {viewMode === "survey" && (
-          <div className="space-y-16 animate-in">
-            <div className="card-modern p-8 md:p-12 relative overflow-hidden">
+          <div className="space-y-6 md:space-y-16 animate-in">
+            <div className="card-modern p-5 md:p-12 relative overflow-hidden">
               {/* Decorative light circle */}
               <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl -z-10"></div>
               
-              <form onSubmit={handleSubmitSurvey} className="space-y-12">
-                <div className="space-y-10">
+              <form onSubmit={handleSubmitSurvey} className="space-y-6 md:space-y-12">
+                <div className="space-y-5 md:space-y-10">
                   <div className="space-y-3">
                     <TeacherSelector
                       selectedTeacher={selectedTeacher}
@@ -332,7 +338,7 @@ export default function Home() {
 
                       <div className="space-y-6">
                         {vehicles.map((v, index) => (
-                          <div key={index} className="relative space-y-8 p-10 border-2 border-slate-200 rounded-[2.5rem] bg-slate-50 transition-all hover:bg-white hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 group shadow-sm">
+                          <div key={index} className="relative space-y-5 md:space-y-8 p-5 md:p-10 border-2 border-slate-200 rounded-[1.5rem] md:rounded-[2.5rem] bg-slate-50 transition-all hover:bg-white hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 group shadow-sm">
                             {vehicles.length > 1 && (
                               <button 
                                 type="button"
@@ -371,7 +377,7 @@ export default function Home() {
                 <button 
                   type="submit" 
                   disabled={isSubmitting} 
-                  className="w-full btn-vibrant py-6 text-lg uppercase tracking-[0.2em] shadow-2xl shadow-orange-500/30 font-black"
+                  className="w-full btn-vibrant py-4 md:py-6 text-base md:text-lg uppercase tracking-[0.15em] shadow-xl shadow-orange-500/30 font-black"
                 >
                   {isSubmitting ? "正在为您同步云端..." : "🚀 立即提交登记"}
                 </button>
@@ -473,7 +479,7 @@ export default function Home() {
         {viewMode === "admin_dashboard" && (
           <div className="animate-in space-y-12">
             {!isAdminAuthenticated ? (
-              <div className="max-w-md mx-auto card-modern p-12 space-y-8 relative overflow-hidden">
+              <div className="max-w-md mx-auto card-modern p-6 md:p-12 space-y-6 md:space-y-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-orange-50 rounded-full blur-3xl -z-10"></div>
                 <div className="text-center space-y-3">
                   <div className="w-16 h-16 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto text-3xl mb-4">🔐</div>

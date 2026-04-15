@@ -35,7 +35,7 @@
   }
 
   .nav-pill-item {
-    @apply px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-300 flex items-center gap-2;
+    @apply px-3 py-2 md:px-6 md:py-3 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 flex items-center gap-1 md:gap-2;
   }
 
   .nav-pill-item-active {
@@ -70,11 +70,11 @@
   }
 
   .table-modern th {
-    @apply px-6 py-5 text-left text-[11px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-50 bg-slate-50/30;
+    @apply px-3 md:px-6 py-3 md:py-5 text-left text-[10px] md:text-[11px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-50 bg-slate-50/30;
   }
 
   .table-modern td {
-    @apply px-6 py-6 text-sm text-slate-600 border-b border-slate-50 transition-colors;
+    @apply px-3 md:px-6 py-3 md:py-6 text-xs md:text-sm text-slate-600 border-b border-slate-50 transition-colors;
   }
 
   .table-modern tr:hover td {
