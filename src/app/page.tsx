@@ -310,7 +310,7 @@ export default function Home() {
                     />
                     
                     <div 
-                      className="flex items-center gap-4 p-5 bg-slate-50 rounded-3xl border-2 border-transparent hover:border-blue-100 transition-all cursor-pointer group" 
+                      className="flex items-center gap-4 p-5 bg-blue-50 rounded-3xl border-2 border-blue-400 hover:border-blue-500 hover:bg-white transition-all cursor-pointer group shadow-md shadow-blue-100" 
                       onClick={() => setHasVehicle(!hasVehicle)}
                     >
                       <div className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${!hasVehicle ? 'bg-orange-500 border-orange-500 scale-110 shadow-lg shadow-orange-500/30' : 'bg-white border-slate-200'}`}>
@@ -332,7 +332,7 @@ export default function Home() {
 
                       <div className="space-y-6">
                         {vehicles.map((v, index) => (
-                          <div key={index} className="relative space-y-8 p-10 border-2 border-slate-50 rounded-[2.5rem] bg-slate-50/30 transition-all hover:bg-white hover:border-blue-50 hover:shadow-xl hover:shadow-blue-500/5 group">
+                          <div key={index} className="relative space-y-8 p-10 border-2 border-slate-200 rounded-[2.5rem] bg-slate-50 transition-all hover:bg-white hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 group shadow-sm">
                             {vehicles.length > 1 && (
                               <button 
                                 type="button"
