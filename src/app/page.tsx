@@ -285,7 +285,7 @@ export default function Home() {
               className={`nav-pill-item flex-1 md:flex-none justify-center ${viewMode === 'public_list' ? 'nav-pill-item-active' : 'nav-pill-item-inactive'}`}
             >
               <span className="text-base">📊</span>
-              <span className="hidden sm:inline"> 公开清单</span>
+              <span className="hidden sm:inline"> 车辆清单</span>
               <span className="sm:hidden text-[10px] font-black">清单</span>
             </button>
             <button 
