@@ -40,8 +40,8 @@ export default function TeacherSelector({ onSelect, selectedTeacher, teachers }:
 
       <div className="relative group">
         <div 
-          className={`flex items-center w-full bg-slate-50/50 border-2 rounded-[24px] px-6 py-4.5 transition-all duration-500 cursor-text ${
-            isOpen ? "border-orange-500 shadow-2xl shadow-orange-500/10 bg-white scale-[1.01]" : "border-slate-100 hover:border-slate-200"
+          className={`flex items-center w-full bg-white border-2 rounded-[24px] px-6 py-4.5 transition-all duration-500 cursor-text shadow-sm ${
+            isOpen ? "border-brand-orange shadow-2xl shadow-orange-500/10 scale-[1.01]" : "border-slate-300 hover:border-slate-400"
           }`}
           onClick={() => setIsOpen(true)}
         >
