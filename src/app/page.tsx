@@ -14,7 +14,10 @@ import {
   orderBy, 
   deleteDoc, 
   doc, 
-  updateDoc 
+  updateDoc,
+  where,
+  limit,
+  writeBatch 
 } from "firebase/firestore";
 import { TEACHERS } from "@/lib/constants";
 import * as XLSX from "xlsx";
@@ -44,29 +47,90 @@ export default function Home() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ teacherName: "", plateNumber: "", carModel: "" });
   const [newStaffName, setNewStaffName] = useState("");
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "123456";
 
-  const fetchData = async () => {
+  // OPTIMIZED DATA FETCHERS
+  const fetchInitialData = async () => {
+    // Try to load from cache
+    const cached = localStorage.getItem("chkk_staff_cache");
+    if (cached) {
+      try {
+        const { data, timestamp } = JSON.parse(cached);
+        const isExpired = Date.now() - timestamp > 15 * 60 * 1000; // 15 mins cache
+        if (!isExpired) {
+          setStaffList(data);
+          return;
+        }
+      } catch (e) {
+        localStorage.removeItem("chkk_staff_cache");
+      }
+    }
+
+    setIsLoading(true);
+    try {
+      // 1. Only fetch unsubmitted staff for the survey
+      const qStaff = query(
+        collection(db, "staff"), 
+        where("hasSubmitted", "!=", true),
+        orderBy("hasSubmitted"),
+        orderBy("name", "asc")
+      );
+      const snapStaff = await getDocs(qStaff);
+      const data = snapStaff.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
+      setStaffList(data);
+      localStorage.setItem("chkk_staff_cache", JSON.stringify({ data, timestamp: Date.now() }));
+    } catch (error) {
+      console.error("Error fetching initial staff:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadPublicData = async () => {
+    if (registrations.length > 0) return; // Already loaded
     setIsLoading(true);
     try {
       const qReg = query(collection(db, "plate_numbers"), orderBy("createdAt", "desc"));
       const snapReg = await getDocs(qReg);
       setRegistrations(snapReg.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    } catch (error) {
+      console.error("Error fetching registrations:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const loadAdminData = async () => {
+    setIsLoading(true);
+    try {
+      // Load ALL staff for management
       const qStaff = query(collection(db, "staff"), orderBy("name", "asc"));
       const snapStaff = await getDocs(qStaff);
       setStaffList(snapStaff.docs.map(doc => ({ id: doc.id, name: doc.data().name })));
+      
+      // Load all registrations
+      await loadPublicData();
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error loading admin data:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchInitialData();
   }, []);
+
+  // Handle Loading Data on View Change
+  useEffect(() => {
+    if (viewMode === "public_list") {
+      loadPublicData();
+    } else if (viewMode === "admin_dashboard" && isAdminAuthenticated) {
+      loadAdminData();
+    }
+  }, [viewMode, isAdminAuthenticated]);
 
   const submittedNames = useMemo(() => {
     return registrations.map(reg => reg.teacherName);
@@ -155,6 +219,15 @@ export default function Home() {
         setRegistrations(prev => [...newRecords, ...prev]);
       }
 
+      // Update staff status to true
+      const staffDoc = staffList.find(s => s.name === selectedTeacher);
+      if (staffDoc) {
+        await updateDoc(doc(db, "staff", staffDoc.id), { hasSubmitted: true });
+        // Update local state and clear cache
+        setStaffList(prev => prev.filter(s => s.id !== staffDoc.id));
+        localStorage.removeItem("chkk_staff_cache");
+      }
+
       setMessage({ type: "success", text: "提交成功，感谢您的配合！" });
       setSelectedTeacher("");
       setVehicles([{ plate: "", model: "" }]);
@@ -241,11 +314,41 @@ export default function Home() {
   const initializeStaffList = async () => {
     if (!window.confirm("这将从备份中导入 116 人名单，确定吗？")) return;
     try {
-      const batch = TEACHERS.map(name => addDoc(collection(db, "staff"), { name }));
+      const batch = TEACHERS.map(name => addDoc(collection(db, "staff"), { name, hasSubmitted: false }));
       await Promise.all(batch);
-      fetchData();
+      fetchInitialData();
     } catch (error: any) {
       alert("同步失败: " + error.message);
+    }
+  };
+
+  const syncSubmissionStatus = async () => {
+    if (!window.confirm("这将根据现有登记记录同步所有老师的提交状态。确定开始吗？")) return;
+    setIsSyncing(true);
+    try {
+      // 1. Get all registrations (to know who has submitted)
+      const qReg = query(collection(db, "plate_numbers"));
+      const snapReg = await getDocs(qReg);
+      const submittedNames = new Set(snapReg.docs.map(doc => doc.data().teacherName));
+
+      // 2. Get all staff
+      const qStaff = query(collection(db, "staff"));
+      const snapStaff = await getDocs(qStaff);
+      
+      // 3. Update staff in chunks
+      const batch = writeBatch(db);
+      snapStaff.docs.forEach(staffDoc => {
+        const name = staffDoc.data().name;
+        batch.update(staffDoc.ref, { hasSubmitted: submittedNames.has(name) });
+      });
+      
+      await batch.commit();
+      alert("同步完成！状态已更新。");
+      loadAdminData();
+    } catch (error: any) {
+      alert("同步失败: " + error.message);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -525,6 +628,9 @@ export default function Home() {
                     </button>
                   </div>
                   <div className="flex gap-4 pb-4">
+                    <button onClick={syncSubmissionStatus} disabled={isSyncing} className="btn-secondary-modern text-[11px] uppercase tracking-widest font-black bg-blue-50 text-blue-600 border-blue-200">
+                      {isSyncing ? "正在计算中..." : "🔄 同步成员状态"}
+                    </button>
                     <button onClick={exportToExcel} className="btn-secondary-modern text-[11px] uppercase tracking-widest font-black">📊 导出数据表格</button>
                     <button onClick={() => setIsAdminAuthenticated(false)} className="px-6 py-3 text-[11px] font-black text-rose-500 uppercase tracking-widest hover:bg-rose-50 rounded-2xl transition-all">安全退出</button>
                   </div>
