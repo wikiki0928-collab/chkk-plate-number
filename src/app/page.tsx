@@ -603,7 +603,7 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody>
-                    {registrations.map((reg) => (
+                    {filteredRegistrations.map((reg) => (
                       <tr key={reg.id}>
                         <td>
                           <div className="flex items-center gap-3">
