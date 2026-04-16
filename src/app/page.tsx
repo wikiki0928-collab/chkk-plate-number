@@ -387,14 +387,37 @@ export default function Home() {
       if (sortBy === "name") {
         return a.teacherName.localeCompare(b.teacherName, "zh-Hans");
       } else {
+        // Special Logic: Push 'N/A' (No Vehicle) to the bottom
+        const aIsNA = a.plateNumber === "N/A";
+        const bIsNA = b.plateNumber === "N/A";
+        if (aIsNA && !bIsNA) return 1;
+        if (!aIsNA && bIsNA) return -1;
         return a.plateNumber.localeCompare(b.plateNumber);
       }
     });
   }, [registrations, searchQuery, sortBy]);
 
+  const handleExportPDF = () => {
+    window.print();
+  };
+
   return (
     <main className="min-h-screen py-4 md:py-16 px-3 md:px-4 bg-slate-50/20">
-      <div className="max-w-4xl mx-auto space-y-6 md:space-y-12">
+      {/* PDF PRINT HEADER (Hidden on web, visible on print) */}
+      <div className="hidden print:block mb-8 border-b-4 border-slate-900 pb-6">
+        <div className="flex justify-between items-end">
+          <div>
+            <h1 className="text-3xl font-black text-slate-900">CHKK 车辆登记管理系统</h1>
+            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mt-2">校园教职员车辆资料汇总报告 (官方文档)</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] font-black text-slate-400 uppercase">生成日期</p>
+            <p className="text-sm font-bold text-slate-900">{new Date().toLocaleDateString('zh-CN')} {new Date().toLocaleTimeString('zh-CN')}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto space-y-6 md:space-y-12 print:max-w-none print:mx-0">
         {/* Unified Modern Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-6 pb-4 md:pb-12 border-b border-slate-100">
           <div className="space-y-1">
@@ -586,6 +609,13 @@ export default function Home() {
                   className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${sortBy === 'plate' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'}`}
                 >
                   按车牌排序
+                </button>
+                <div className="h-6 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
+                <button 
+                  onClick={handleExportPDF}
+                  className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
+                >
+                  📑 导出 PDF 报告
                 </button>
               </div>
               <div className="h-[2px] flex-1 bg-slate-100 hidden lg:block"></div>

@@ -120,3 +120,78 @@
 .form-section-dot {
   @apply w-2 h-2 rounded-full bg-blue-500 shadow-lg shadow-blue-500/40;
 }
+
+/* Print Styles */
+@media print {
+  body {
+    background: white !important;
+    padding: 0 !important;
+  }
+
+  /* Hide UI elements */
+  nav, 
+  .nav-pill-container, 
+  .flex.gap-2, 
+  .h-\[2px\], 
+  header, 
+  footer, 
+  button,
+  .badge-modern.badge-blue,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Adjust Containers */
+  main {
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  .max-w-4xl {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Table Style for Print */
+  .table-container-modern {
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+
+  .max-h-\[650px\] {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .table-modern {
+    border-collapse: collapse !important;
+  }
+
+  .table-modern th {
+    background: #f8fafc !important;
+    color: #475569 !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .table-modern td {
+    padding: 12px 16px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+  }
+
+  /* Plate Number Badge for Print */
+  .table-modern span.px-3.py-1.5 {
+    background: #0f172a !important;
+    color: white !important;
+    border-radius: 6px !important;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Title Rendering */
+  h1, h2 {
+    color: black !important;
+  }
+}
