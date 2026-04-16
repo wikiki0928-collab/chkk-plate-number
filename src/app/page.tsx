@@ -17,7 +17,9 @@ import {
   updateDoc,
   where,
   limit,
-  writeBatch 
+  writeBatch,
+  getDoc,
+  setDoc 
 } from "firebase/firestore";
 import { TEACHERS } from "@/lib/constants";
 import * as XLSX from "xlsx";
@@ -26,6 +28,8 @@ type ViewMode = "survey" | "public_list" | "admin_dashboard";
 
 export default function Home() {
   const [viewMode, setViewMode] = useState<ViewMode>("survey");
+  const [isSurveyOpen, setIsSurveyOpen] = useState(true);
+  const [sortBy, setSortBy] = useState<"name" | "plate">("name");
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
 
@@ -70,7 +74,17 @@ export default function Home() {
 
     setIsLoading(true);
     try {
-      // 1. Only fetch unsubmitted staff for the survey
+      // 1. Fetch Survey Status
+      const statusDoc = await getDoc(doc(db, "settings", "survey_status"));
+      if (statusDoc.exists()) {
+        const isOpen = statusDoc.data().isOpen;
+        setIsSurveyOpen(isOpen);
+        if (!isOpen && viewMode === "survey") {
+          setViewMode("public_list");
+        }
+      }
+
+      // 2. Only fetch unsubmitted staff for the survey
       const qStaff = query(
         collection(db, "staff"), 
         where("hasSubmitted", "!=", true),
@@ -352,13 +366,31 @@ export default function Home() {
     }
   };
 
+  const toggleSurveyStatus = async () => {
+    const newStatus = !isSurveyOpen;
+    try {
+      await setDoc(doc(db, "settings", "survey_status"), { isOpen: newStatus });
+      setIsSurveyOpen(newStatus);
+    } catch (error: any) {
+      alert("切换失败: " + error.message);
+    }
+  };
+
   const filteredRegistrations = useMemo(() => {
-    return registrations.filter(reg => 
+    const filtered = registrations.filter(reg => 
       reg.teacherName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       reg.plateNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       reg.carModel.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [registrations, searchQuery]);
+
+    return [...filtered].sort((a, b) => {
+      if (sortBy === "name") {
+        return a.teacherName.localeCompare(b.teacherName, "zh-Hans");
+      } else {
+        return a.plateNumber.localeCompare(b.plateNumber);
+      }
+    });
+  }, [registrations, searchQuery, sortBy]);
 
   return (
     <main className="min-h-screen py-4 md:py-16 px-3 md:px-4 bg-slate-50/20">
@@ -375,14 +407,18 @@ export default function Home() {
           
           {/* Main Navigation Pill */}
           <div className="nav-pill-container self-start md:self-center w-full md:w-auto">
-            <button 
-              onClick={() => setViewMode("survey")}
-              className={`nav-pill-item flex-1 md:flex-none justify-center ${viewMode === 'survey' ? 'nav-pill-item-active' : 'nav-pill-item-inactive'}`}
-            >
-              <span className="text-base">📋</span>
-              <span className="hidden sm:inline"> 请愿登记</span>
-              <span className="sm:hidden text-[10px] font-black">登记</span>
-            </button>
+            {(isSurveyOpen || isAdminAuthenticated) && (
+              <button 
+                onClick={() => setViewMode("survey")}
+                className={`nav-pill-item flex-1 md:flex-none justify-center ${viewMode === 'survey' ? 'nav-pill-item-active' : 'nav-pill-item-inactive'}`}
+              >
+                <div className="flex items-center gap-1.5">
+                  <span className="text-base">{!isSurveyOpen ? '🔒' : '📋'}</span>
+                  <span className="hidden sm:inline"> {!isSurveyOpen ? '登记已关闭' : '请愿登记'}</span>
+                  <span className="sm:hidden text-[10px] font-black">{!isSurveyOpen ? '锁定' : '登记'}</span>
+                </div>
+              </button>
+            )}
             <button 
               onClick={() => setViewMode("public_list")}
               className={`nav-pill-item flex-1 md:flex-none justify-center ${viewMode === 'public_list' ? 'nav-pill-item-active' : 'nav-pill-item-inactive'}`}
@@ -538,7 +574,21 @@ export default function Home() {
                 <h2 className="text-2xl font-black text-slate-900 tracking-tight">全校车辆资料库</h2>
                 <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">已成功采集 {registrations.length} 项登记数据</p>
               </div>
-              <div className="h-[2px] flex-1 bg-slate-100 hidden md:block"></div>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setSortBy("name")}
+                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${sortBy === 'name' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'}`}
+                >
+                  按姓名排序
+                </button>
+                <button 
+                  onClick={() => setSortBy("plate")}
+                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${sortBy === 'plate' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'}`}
+                >
+                  按车牌排序
+                </button>
+              </div>
+              <div className="h-[2px] flex-1 bg-slate-100 hidden lg:block"></div>
             </div>
             
             <div className="table-container-modern">
@@ -627,7 +677,14 @@ export default function Home() {
                       👥 教职员名册
                     </button>
                   </div>
-                  <div className="flex gap-4 pb-4">
+                  <div className="flex gap-4 pb-4 items-center">
+                    <button 
+                      onClick={toggleSurveyStatus} 
+                      className={`px-5 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border-2 ${isSurveyOpen ? 'border-emerald-100 bg-emerald-50 text-emerald-600' : 'border-rose-100 bg-rose-50 text-rose-600'}`}
+                    >
+                      {isSurveyOpen ? "🔓 登记进行中" : "🔒 登记已关闭"}
+                    </button>
+                    <div className="h-4 w-[2px] bg-slate-100 mx-1"></div>
                     <button onClick={syncSubmissionStatus} disabled={isSyncing} className="btn-secondary-modern text-[11px] uppercase tracking-widest font-black bg-blue-50 text-blue-600 border-blue-200">
                       {isSyncing ? "正在计算中..." : "🔄 同步成员状态"}
                     </button>
